@@ -9,7 +9,6 @@ dim jsonapi_version
 
 jsonapi_version = "0.1"
 
-
 ' Get action from querystring
 qaction = request.querystring("action")
 if qaction = "" then qaction = "none"
@@ -22,10 +21,15 @@ if qid = "" then qid = "none"
 qvalue = request.querystring("value")
 if qvalue = "" then qvalue = "none"
 
+' Display usage if no querystring
+if qaction = "none" and qid = "none" and qvalue = "none" then
+  response.write "{""Usage"": {""action"":[""getroom"",""getdevices"",""setdevicevalue"",""deviceon"",""deviceoff"",""getevents"",""runevent""],""id"":[""HomeseerHomeCode"",""Interface""],""value"":""DeviceValue""}}"
+end if
 
 ' Get show hidden flag
 if request.querystring("showhidden") <> "" then opt_showhidden = lcase(request.querystring("showhidden"))
 if opt_showhidden <> "yes" then opt_showhidden = "no"
+
 
 ' build a list of locations
 BuildLocationsList
@@ -33,7 +37,7 @@ BuildLocationsList
 ' handle actions, checking for authorizations if needed
 if qaction <> "none" then
     if GetUserAuthorizations(hs.WebLoggedInUser) <= 1 then
-  	    response.write "Sorry, control is available to authorized users only!"
+  	    response.write "{""Error"":""Authorization Required""}"
         hs.WriteLog "JSONAPI","Ignoring action from " & hs.WebLoggedInUser & " at " & request.ServerVariables("REMOTE_ADDR")
 		  else
         HandleAction qaction, qid, qvalue
@@ -74,7 +78,7 @@ sub HandleAction(qaction, qid, qvalue)
     RunEvent qid
   
   else ' unknown action
-    response.write "Unknown action " & qaction & " ignored."
+    response.write "{""Error"":""Unknown action " & qaction & " ignored.""}"
     hs.WriteLog "JSONAPI","Ignoring unknown action " & qaction & " from " & hs.WebLoggedInUser & " at " & request.ServerVariables("REMOTE_ADDR")
   end if
 end sub
@@ -129,9 +133,7 @@ sub ShowRoom(room)
                 ' show this device
                 id = dev.hc & dev.dc
                 ShowDevice(id)
-		    if not devices.Finished then
-                  response.write ", "
-		    end if
+                response.write ", "
               end if
           end if
         loop
@@ -157,9 +159,7 @@ sub ShowDevices()
                 ' show this device
                 id = dev.hc & dev.dc
                 ShowDevice(id)
-		    if not devices.Finished then
-                  response.write ", "
-		    end if
+                response.write ", "
               end if
           end if
         loop
@@ -179,8 +179,8 @@ sub ShowDevice(id)
   deviceStatus = hs.DeviceStatus(id)
 
   response.write "{"
-  response.write """id"": """ & Replace(id, "\", "\u005C") & """, "
-  response.write """name"": """ & Replace(device.name, "\", "\u005C") & """, "
+  response.write """id"": """ & id & """, "
+  response.write """name"": """ & device.name & """, "
   response.write """room"": """ & device.location & """, "
   response.write """floor"": """ & device.location2 & """, "
   response.write """dimmable"": " & lcase(device.can_dim) & ", "
@@ -306,9 +306,7 @@ sub ShowEvents()
       if not evt is nothing then
         ' print event
         ShowEvent(evt)
-	  if not events.Finished then
         response.write ", "
-	  end if
       end if
     loop
   end if
