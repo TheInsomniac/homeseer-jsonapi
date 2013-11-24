@@ -7,7 +7,7 @@ Simple plugin for HomeSeer HS2 that provides a simple API that returns JSON data
 __Copy the jsonapi.asp into your html folder in your Homeseer installation__  
 __Call with__:    
 
-    http://username:password@homeseer.ip/jsonapi.asp?[query string]```
+    http://username:password@homeseer.ip/jsonapi.asp?[query string]
 
 _All commands are via URL queries. The supported list is as follows_:  
 
