@@ -46,6 +46,13 @@ if qaction <> "none" then
 
 
 ' *****************************************************************************
+function Sleep(seconds)
+  set oShell = CreateObject("Wscript.Shell")
+    cmd = "%COMSPEC% /c timeout " & seconds & " /nobreak"
+    oShell.Run cmd,0,1
+End function
+
+' *****************************************************************************
 sub HandleAction(qaction, qid, qvalue)
   ' execute an action; we're assuming that guests have already been filtered out
   s = lcase(qaction)
@@ -228,13 +235,11 @@ sub DeviceOn(id)
 
   if dev.can_dim then
     hs.ExecX10 id, "ddim", 100
-    ' TODO make sure we get an updated device json object back
-    ' currently it is the old one, with the old value / status
+    Sleep(1)
     ShowDevice(id)
   else ' just turn it on
     hs.ExecX10 id, "on"
-    ' TODO make sure we get an updated device json object back
-    ' currently it is the old one, with the old value / status
+    Sleep(1)
     ShowDevice(id)
   end if
 
@@ -252,8 +257,7 @@ sub DeviceOff(id)
   set dev = hs.GetDeviceByRef(hs.DeviceExistsRef(id))
 
   hs.ExecX10 id, "off"
-  ' TODO make sure we get an updated device json object back
-  ' currently it is the old one, with the old value / status
+  Sleep(1)
   ShowDevice(id)
 
   hs.WriteLog "JSONAPI","Device action: " & "Turned off" & " the " & dev.location & " " & dev.name & " at " & id & " from " & hs.WebLoggedInUser & " at " & request.ServerVariables("REMOTE_ADDR")
@@ -283,8 +287,7 @@ sub SetDeviceValue(id, value)
 
   if dev.can_dim then
     hs.ExecX10 id, "ddim", k
-    ' TODO make sure we get an updated device json object back
-    ' currently it is the old one, with the old value / status
+    Sleep(1)
     ShowDevice(id)
   else ' just turn it on
     ShowError("Device not dimmable")
