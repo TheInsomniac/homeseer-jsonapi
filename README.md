@@ -3,6 +3,8 @@ homeseer-jsonapi
 
 Simple plugin for HomeSeer HS2 that provides a simple API that returns JSON data.
 
+###Added jsonpapi.asp which supports access via JSONP for cross domain. All JSON is wrapped in a function call to "hsCallback"
+
 ####Usage:  
 __Copy the jsonapi.asp into your html folder in your Homeseer installation__  
 __Call with__:    
@@ -42,3 +44,4 @@ __List all events__:
 __Run specific event__:  
 
     ?action=runevent&id=[event ID]
+
